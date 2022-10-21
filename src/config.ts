@@ -1,6 +1,6 @@
 import { TDirection } from "./models/TDirection";
 
-export const SERVER_API = 'http://localhost:5000'
+export const SERVER_API = 'https://nevatrip-server.herokuapp.com'
 
 export const directionsData:TDirection[] = ['Москва - Воронеж', 'Воронеж - Москва', 'Туда и обратно']
 
