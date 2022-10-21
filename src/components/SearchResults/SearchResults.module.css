@@ -1,0 +1,106 @@
+.section {
+    width: 100%;
+    margin-top: 30px;
+    margin-bottom: 50px;
+    border-radius: 12px;
+    padding: 30px 60px;
+    background-color: var(--color-secondary);
+}
+.heading {
+    font-size: 26px;
+    text-align: center;
+    color: var(--color-white);
+}
+.wrapper {
+    margin-top: 20px;
+}
+.item {
+    display: flex;
+    margin-bottom: 20px;
+}
+.col_1{
+    background-color: var(--color-white);
+    padding: 10px 15px;
+    border-radius: 12px;
+    max-width: 17%;
+}
+.col_2 {
+    background-color: var(--color-white);
+    margin-left: 3%;
+    padding: 10px 15px;
+    border-radius: 12px;
+    max-width: 65%;
+}
+.col_3{
+    background-color: var(--color-white);
+    padding: 10px 15px;
+    border-radius: 12px;
+    max-width: 17%;
+}
+.ship {
+    color: var(--color-secondary);
+    font-size: 13px;
+}
+.shipName {
+    margin-top: 4px;
+    color: var(--color-dark);
+}
+.quantity {
+    margin-top: 7px;
+    font-weight: 500;
+    margin-left: 10px;
+    color: var(--color-primary);
+}
+.img {
+    margin-top: 8px;
+    margin-left: 8px;
+}
+.time {
+    display: flex;
+    margin-top: 10px;
+    font-size: 18px;
+    color: var(--color-secondary);
+    font-weight: 600;
+}
+.line {
+    width: 120px;
+    height: 1px;
+    margin: auto 10px;
+    opacity: 0.6;
+    background-color: var(--color-secondary);
+}
+.time span {
+    font-weight: 400;
+    font-size: 16px;
+    color: var(--color-secondary);
+}
+.city_wrapper {
+    margin-top: 7px;
+    display: flex;
+    justify-content: space-between;
+}
+.city {
+    color: var(--color-dark);
+    font-size: 15px;
+    text-transform: capitalize;
+}
+.date {
+    margin-top: 7px;
+    color: var(--color-primary);
+    text-align: center;
+}
+.btn {
+    margin-left: 3%;
+    font-weight: 600;
+    line-height: 30px;
+    background-color: var(--color-primary);
+    color: var(--color-white);
+    padding: 10px 15px;
+    border-radius: 12px;
+    font-size: 18px;
+}
+.btn:hover {
+    background-color: var(--color-dark);
+    color: var(--color-white);
+    transition: 0.2s;
+}

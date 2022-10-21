@@ -1,0 +1,35 @@
+.section {
+    display: flex;
+    width: 100%;
+    margin-top: 25px;
+    padding: 60px 60px 1px;
+    background: rgba(95, 157, 247, 0.6);
+    backdrop-filter: blur(4px);
+    border-radius: 12px;
+}
+
+.wrapper {
+    margin-top: 50px;
+}
+.desc {
+    margin-top: 10px;
+    font-weight: 500;
+    font-size: 18px;
+}
+.desc span {
+    font-weight: 400;
+    color: var(--color-primary);
+}
+.btn_logout {
+    margin-top: 30px;
+    padding: 3px 7px;
+    font-size: 20px; 
+    border-radius: 2px;
+    background-color: var(--color-primary);
+    color: var(--color-white);
+}
+@media (max-width: 425px) {
+    .section {
+        margin: 60px 0 50px;
+    }
+}
