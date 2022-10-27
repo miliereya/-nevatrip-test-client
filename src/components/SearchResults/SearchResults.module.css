@@ -17,6 +17,7 @@
 .item {
     display: flex;
     margin-bottom: 20px;
+    border-radius: 12px;
 }
 .col_1{
     background-color: var(--color-white);
@@ -29,7 +30,7 @@
     margin-left: 3%;
     padding: 10px 15px;
     border-radius: 12px;
-    max-width: 65%;
+    width: 66%;
 }
 .col_3{
     background-color: var(--color-white);
@@ -57,6 +58,7 @@
 }
 .time {
     display: flex;
+    justify-content: space-between;
     margin-top: 10px;
     font-size: 18px;
     color: var(--color-secondary);
@@ -103,4 +105,25 @@
     background-color: var(--color-dark);
     color: var(--color-white);
     transition: 0.2s;
+}
+.not_avaliable {
+    margin: auto;
+    text-align: center;
+    margin-left: 3%;
+    font-size: 13px;
+    line-height: 16px;
+}
+.auth_error {
+    margin-top: 2px;
+    text-decoration: underline;
+    width: 300px;
+    text-align: center;
+    left: 50%;
+    margin-left: -150px;
+    position: absolute;
+    font-size: 10px;
+    color: var(--color-warning);
+}
+.auth_error:hover {
+    color: var(--color-dark);
 }

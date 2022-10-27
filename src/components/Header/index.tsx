@@ -1,18 +1,20 @@
 import { useContext,useState} from 'react'
 import { ruHeader} from '../../languages/ru'
 import s from './Header.module.css'
-import { NavLink, useLocation } from 'react-router-dom'
+import { Link, NavLink, useLocation } from 'react-router-dom'
 import { ILHeader } from '../../languages/ILanguage'
-import { observer } from 'mobx-react-lite'
-import { Context } from '../..'
 import { enHeader} from '../../languages/en'
+import { useAppDispatch, useAppSelector } from '../../hooks/redux'
+import { languageSlice } from '../../store/reducers/LanguageSlice'
 
 
 const Header = () => {
-    const { store } = useContext(Context)
+    const dispatch = useAppDispatch()
+    const {language} = useAppSelector(state => state.languageSlice)
+    const {setLanguage} = languageSlice.actions
     const nav = useLocation().pathname
     const [active, setActive] = useState<string>(nav)
-    const text: ILHeader = store.language === 'ru' ? ruHeader : enHeader
+    const text: ILHeader =  language === 'ru' ?  ruHeader : enHeader
 
     return (
         <header className={s.section}>
@@ -23,7 +25,7 @@ const Header = () => {
                         <NavLink onClick={() => setActive('/')} to='/' className={active === '/' ? s.link_active : s.link}>
                             {text.findTicket}
                         </NavLink>
-                        <NavLink to='/' className={s.link}>
+                        <NavLink onClick={() => setActive('/')} to='/' className={s.link}>
                             {text.aboutUs}
                         </NavLink>
                         <NavLink onClick={() => setActive('/account')} to='/account' className={active === '/account' ? s.link_active : s.link}>
@@ -31,14 +33,14 @@ const Header = () => {
                         </NavLink>
                     </div>
                     <div className={s.nav_row}>
-                        <NavLink to='/' className={s.link}>
+                        <a href='https://github.com/miliereya/-nevatrip-test-client' className={s.link}>
                             {text.telegram}
-                        </NavLink>
+                        </a>
                         <NavLink onClick={() => setActive('/cart')} to='/cart' className={active === '/cart' ? s.link_active : s.link}>
                             {text.cart}
                         </NavLink>
-                        <button className={s.btn} onClick={() => store.setLanguage(store.language === 'ru' ? 'en': 'ru')}>
-                            {store.language === 'ru' ? 'en' : 'ru'}
+                        <button className={s.btn} onClick={() => dispatch(setLanguage(language === 'ru' ? 'en': 'ru'))}>
+                            {language === 'ru' ? 'en' : 'ru'}
                         </button>
                     </div>
                 </nav>
@@ -50,4 +52,4 @@ const Header = () => {
     )
 }
 
-export default observer(Header)
+export default Header

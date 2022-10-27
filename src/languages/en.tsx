@@ -1,4 +1,4 @@
-import { ILCart, ILHeader, ILSearchResults, ILSearchTicket } from "./ILanguage";
+import { ILAccount, ILCart, ILHeader, ILSearchResults, ILSearchTicket } from "./ILanguage";
 
 export const enHeader: ILHeader = {
     language: 'en',
@@ -16,7 +16,8 @@ export const enSearchTicket: ILSearchTicket = {
     to: 'To?',
     when: 'When?',
     quantity: 'Passangers',
-    search: 'Search Tickets'
+    search: 'Search Tickets',
+    nwf: 'Nothing was found'
 }
 
 export const enSearchResults: ILSearchResults = {
@@ -25,7 +26,9 @@ export const enSearchResults: ILSearchResults = {
     hour: 'h',
     min: 'm',
     passengers: 'passengers',
-    add: 'Add'
+    add: 'Add',
+    authError: 'Sign in, to add tickets!',
+    not_avaliable: 'Irrelevant date'
 }
 
 export const enCart: ILCart = {
@@ -37,4 +40,14 @@ export const enCart: ILCart = {
     pay: 'Procced to checkout',
     choose: 'Number of tickets: ',
     price: 'Price'
+}
+
+export const enAccount: ILAccount = {
+    logout: 'Logout',
+    user: 'User',
+    login: 'Login',
+    signup: 'Sign up',
+    password: 'Password',
+    registr_form: 'Sign in / up',
+    role: 'role'
 }

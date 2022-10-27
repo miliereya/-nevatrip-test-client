@@ -1,77 +1,65 @@
-import { FC, useContext, useEffect, useState } from 'react'
+import { FC, useEffect, useState } from 'react'
 import { ILSearchTicket } from '../../languages/ILanguage'
 import { ruSearchTicket } from '../../languages/ru'
-import { SearchLocation } from './SearchLocation'
+import { SearchInput } from './SearchInput'
 import iconLocation from '../../icons/location.png'
 import iconCalendar from '../../icons/calendar.png'
 import iconSits from '../../icons/sits.png'
+import iconSwap from '../../icons/swap.png'
+import iconSwap_white from '../../icons/swap_white.png'
 import s from './SearchTicket.module.css'
-import CityService from '../../services/CityService'
 import { ICity } from '../../models/ICity'
-import VoyageService from '../../services/VoyageService'
-import { Context } from '../..'
-import { observer } from "mobx-react-lite"
 import { enSearchTicket } from '../../languages/en'
+import { useAppDispatch, useAppSelector } from '../../hooks/redux'
+import { cityAPI } from '../../services/CityService'
+import { searchSlice } from '../../store/reducers/SearchSlice'
+import { SearchRequest } from '../../models/request/SearchRequest'
 import SearchResults from '../SearchResults'
+import searchAPI from '../../services/SearchService'
+import { isLoadingSlice } from '../../store/reducers/IsLoadingSlice'
 
 const SearchTicket: FC = () => {
-    const { store } = useContext(Context)
+    const { cityFrom, cityTo, date, quantity, result } = useAppSelector(state => state.SearchSlice)
+    const { setCityFrom, setCityTo, setDate, setQuantity, setResult, resetResult } = searchSlice.actions
 
-    const [cityFrom, setCityFrom] = useState<string>('')
-    const [cityFromSearch, setCityFromSearch] = useState<ICity[]>([])
+    const [cityFromSearch, setCityFromSearch] = useState<ICity[] | undefined>([])
     const [cityFromError, setCityFromError] = useState<string>('')
 
-    const [cityTo, setCityTo] = useState<string>('')
-    const [cityToSearch, setCityToSearch] = useState<ICity[]>([])
+    const { data: cityFromFetched } = cityAPI.useFetchAllCitiesQuery(cityFrom.toLowerCase())
+
+    const [cityToSearch, setCityToSearch] = useState<ICity[] | undefined>([])
     const [cityToError, setCityToError] = useState<string>('')
+    const { data: cityToFetched } = cityAPI.useFetchAllCitiesQuery(cityTo.toLowerCase())
 
-    const [date, setDate] = useState<string>('')
     const [dateError, setDateError] = useState<string>('')
-
-    const [quantity, setQuantity] = useState<string>('')
     const [quantityError, setQuantityError] = useState<string>('')
 
-    const text: ILSearchTicket = store.language === 'ru' ? ruSearchTicket : enSearchTicket
+    const { language } = useAppSelector(state => state.languageSlice)
+
+    const dispatch = useAppDispatch()
+    const { setLoading } = isLoadingSlice.actions
+
+    const [nwf, setNwf] = useState<boolean>(false)
+
+    const [isSwapped, setSwapped] = useState<boolean>(false)
+
+    const text: ILSearchTicket = language === 'ru' ? ruSearchTicket : enSearchTicket
 
     useEffect(() => {
-        if (cityFrom.length > 1 && cityFrom.toLowerCase() !== cityFromSearch[0]?.title) {
-            const getCities = async () => {
-                try {
-                    const res = await CityService.getCities(cityFrom.toLowerCase())
-                    if (res.data.length === 0) {
-                        return setCityFromSearch([])
-                    }
-                    setCityFromSearch(res.data)
-                } catch (e) {
-                    console.log(e)
-                }
-            }
-
-            getCities()
+        if (cityFrom.length > 1) {
+            setCityFromSearch(cityFromFetched)
         } else {
             setCityFromSearch([])
         }
-    }, [cityFrom])
+    }, [cityFromFetched])
 
     useEffect(() => {
-        if (cityTo.length > 1 && cityTo.toLowerCase() !== cityToSearch[0]?.title) {
-            const getCities = async () => {
-                try {
-                    const res = await CityService.getCities(cityTo.toLowerCase())
-                    if (res.data.length === 0) {
-                        return setCityToSearch([])
-                    }
-                    setCityToSearch(res.data)
-                } catch (e) {
-                    console.log(e)
-                }
-            }
-
-            getCities()
+        if (cityTo.length > 1) {
+            setCityToSearch(cityToFetched)
         } else {
             setCityToSearch([])
         }
-    }, [cityTo])
+    }, [cityToFetched])
 
     const SearchHandler = async () => {
         let error = false
@@ -80,41 +68,53 @@ const SearchTicket: FC = () => {
         setDateError('')
         setQuantityError('')
 
-        if(cityFrom === ''){
+        if (cityFrom === '') {
             setCityFromError('Обязательное поле')
             error = true
         }
-        if(cityTo === ''){
+        if (cityTo === '') {
             setCityToError('Обязательное поле')
             error = true
         }
-        if(date === ''){
+        if (date === '') {
             setDateError('Обязательное поле')
             error = true
         }
-        if(quantity !== '1' && quantity !== '2' && quantity !== '3'){
+
+        if (quantity !== '1' && quantity !== '2' && quantity !== '3') {
             setQuantityError('Введите число от 1 до 3')
             error = true
         }
 
-        if(error){
+        if (error) {
             return
         }
 
-        const from = cityFrom.toLowerCase()
-        const to = cityTo.toLowerCase()
+        try {
+            dispatch(setLoading(true))
+            const res = await searchAPI.getVoyages(cityFrom.toLowerCase(), cityTo.toLowerCase(), date, quantity)
+            if (res.data.voyagesData.length !== 0) {
+                setNwf(false)
+                dispatch(setResult(res.data))
+                window.scroll(0, 550)
+            } else {
+                setNwf(true)
+                dispatch(resetResult())
+            }
+        } catch (e) {
 
-        store.setLoading(true)
-        const res = await VoyageService.getVoyages(from, to, date, quantity)
-        if(res.data.voyagesData.length !== 0){
-            store.setSearchResult(res.data)
-            window.scrollTo(0, 350)
-        } else {
-            store.setSearchResult({voyagesData: [], date: '', quantity: ''})
-            console.log('Ничего')
-            console.log(store.user.tickets)
+        } finally {
+            dispatch(setLoading(false))
         }
-        store.setLoading(false)
+
+    }
+
+    const swapHadnler = () => {
+        setSwapped(!isSwapped)
+        dispatch(setCityFrom(cityTo))
+        dispatch(setCityTo(cityFrom))
+        setCityToSearch([])
+        setCityFromSearch([])
     }
 
     return (
@@ -122,7 +122,14 @@ const SearchTicket: FC = () => {
             <h1 className={s.heading}>{text.heading}</h1>
             <div className={s.container}>
                 <div className={s.row}>
-                    <SearchLocation
+                    <button 
+                        className={s.swap}
+                        onClick={swapHadnler}
+                        style={{backgroundColor: isSwapped ? 'var(--color-primary)' : 'var(--color-white)'}}
+                    >
+                        <img className={s.swap_icon} src={isSwapped ? iconSwap_white : iconSwap} />
+                    </button>
+                    <SearchInput
                         error={cityFromError}
                         icon={iconLocation}
                         type='text'
@@ -132,7 +139,7 @@ const SearchTicket: FC = () => {
                         setValue={setCityFrom}
                         autocomplete={cityFromSearch}
                     />
-                    <SearchLocation
+                    <SearchInput
                         error={cityToError}
                         icon={iconLocation}
                         type='text'
@@ -144,7 +151,7 @@ const SearchTicket: FC = () => {
                     />
                 </div>
                 <div className={s.row}>
-                    <SearchLocation
+                    <SearchInput
                         error={dateError}
                         icon={iconCalendar}
                         type='date'
@@ -153,23 +160,25 @@ const SearchTicket: FC = () => {
                         value={date}
                         setValue={setDate}
                     />
-                    <SearchLocation
+                    <SearchInput
                         error={quantityError}
                         icon={iconSits}
                         type='number'
                         heading={text.quantity}
                         example={'0'}
-                        value={quantity}
+                        value={quantity.toString()}
                         setValue={setQuantity}
                     />
                 </div>
+                {nwf && <p className={s.nwf}>{text.nwf}</p>}
             </div>
             <button className={s.btn} onClick={SearchHandler}>
                 {text.search}
             </button>
-            {store.searchResult.voyagesData.length !== 0 && <SearchResults result={store.searchResult}/>}
+
+            {result && result.voyagesData.length !== 0 && <SearchResults result={result} />}
         </div>
     )
 }
 
-export default observer(SearchTicket)
+export default SearchTicket

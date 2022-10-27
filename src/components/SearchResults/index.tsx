@@ -1,52 +1,60 @@
-import { FC, useContext } from "react";
+import { FC } from "react";
 import { VoyageResponse } from "../../models/response/VoyageResponse";
 import s from './SearchResults.module.css'
-import { observer } from "mobx-react-lite"
 import { ILSearchResults } from "../../languages/ILanguage";
-import { Context } from "../..";
 import { ruSearchResults } from "../../languages/ru";
 import { enSearchResults } from "../../languages/en";
 import { IVoyage } from "../../models/IVoyage";
 import iconSits from '../../icons/sits.png'
-import CartService from "../../services/Cart.service";
-
+import { useAppSelector } from "../../hooks/redux";
+import { NavLink } from "react-router-dom";
+import { userAPI } from "../../services/UserService";
+import { AddTicketRequest } from "../../models/request/AddTicketRequest";
+import { useState } from 'react'
 
 interface SearchResultsProps {
     result: VoyageResponse
 }
 
-const SearchResults:FC<SearchResultsProps> = ({result}) => {
-    const { store } = useContext(Context)
-    const text: ILSearchResults = store.language === 'ru' ? ruSearchResults : enSearchResults
+const SearchResults: FC<SearchResultsProps> = ({ result }) => {
+    const [added, setAdded] = useState('')
+    const { user } = useAppSelector(state => state.UserSlice)
+    const { language } = useAppSelector(state => state.languageSlice)
+    const text: ILSearchResults = language === 'ru' ? ruSearchResults : enSearchResults
 
+    const { isAuth } = useAppSelector(state => state.UserSlice)
     const voyages = result.voyagesData
+
+    const available: boolean = new Date() < new Date(result.date)
 
     return (
         <div className={s.section}>
             <h3 className={s.heading}>{text.heading}{result.date}</h3>
             <div className={s.wrapper}>
                 {voyages.map((voyage: IVoyage) => {
-                    const {_id, from, to, price, timeStart, timeEnd, timeTravel} = voyage 
-                    const date = result.date
-                    const quantity = result.quantity
-
+                    const { _id, from, to, price, timeStart, timeEnd, timeTravel } = voyage
+                    const { date, quantity } = result
+                    const [addToCart] = userAPI.useAddToCartMutation()
+                    const AddTicketRequest: AddTicketRequest = {
+                        email: user.email,
+                        voyage: _id,
+                        date,
+                        quantity
+                    }
                     const addToCartHandler = async () => {
-                        store.setLoading(true)
-                        const res = await CartService.addToCart(store.user.email, _id, quantity, date)
-                        store.setLoading(false)
-                        if(res.data = 'Success'){
-                            console.log('Added')
-                        }
+                        await addToCart(AddTicketRequest)
+                        setAdded(_id)
+                        return setTimeout(function () { setAdded('') }, 1000)
                     }
 
                     return (
-                        <div key={_id} className={s.item}>
-                            <div className={s.col_1}>
+                        <div key={_id} className={s.item} >
+                            <div className={s.col_1} style={added === _id ? { boxShadow: '0 0 7px 4px #11ff00' } : undefined}>
                                 <p className={s.ship}>{text.boat}</p>
                                 <p className={s.shipName}>Москва-16</p>
                                 <p className={s.quantity}>{quantity}<img src={iconSits} className={s.img} /></p>
                             </div>
-                            <div className={s.col_2}>
+                            <div className={s.col_2} style={added === _id ? { boxShadow: '0 0 7px 4px #11ff00' } : undefined}>
                                 <div className={s.time}>
                                     {timeStart}
                                     <div className={s.line}></div>
@@ -59,16 +67,21 @@ const SearchResults:FC<SearchResultsProps> = ({result}) => {
                                     <p className={s.city}>{to}</p>
                                 </div>
                                 <p className={s.date}>{date}</p>
+                                {!isAuth && <NavLink to='/account' className={s.auth_error}>{text.authError}</NavLink>}
                             </div>
-                            <button 
+                            {available ? 
+                            <button
                                 className={s.btn}
                                 onClick={() => addToCartHandler()}
-                                disabled={!store.isAuth}
+                                disabled={!isAuth}
                             >
                                 {text.add}
                                 <br />
                                 ({price * parseInt(quantity)}₽)
-                            </button>
+                            </button> : 
+                            <div className={s.not_avaliable}>
+                                {text.not_avaliable}!
+                            </div>}
                         </div>
                     )
                 })}
@@ -77,4 +90,4 @@ const SearchResults:FC<SearchResultsProps> = ({result}) => {
     )
 }
 
-export default observer(SearchResults)
+export default SearchResults

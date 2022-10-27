@@ -1,19 +1,21 @@
-import { useContext, useEffect, useState } from 'react'
-import { Context } from '../..'
+import { useEffect, useState } from 'react'
 import { enCart } from '../../languages/en'
 import { ILCart } from '../../languages/ILanguage'
 import { ruCart } from '../../languages/ru'
 import s from './Cart.module.css'
-import { observer } from 'mobx-react-lite'
-import TicketService from '../../services/TicketsService'
 import { IVoyage } from '../../models/IVoyage'
 import { ITicket } from '../../models/ITicket'
-import CartService from '../../services/Cart.service'
 import { useLocation } from 'react-router'
+import { useAppSelector } from '../../hooks/redux'
+import { userAPI } from '../../services/UserService'
+import { DeleteFromCartRequest } from '../../models/request/DeleteFromCartRequest'
 
 const Cart = () => {
-    const { store } = useContext(Context)
-    const text: ILCart = store.language === 'ru' ? ruCart : enCart
+    const { language } = useAppSelector(state => state.languageSlice)
+    const { isAuth, user } = useAppSelector(state => state.UserSlice)
+    const text: ILCart = language === 'ru' ? ruCart : enCart
+
+    const { isCartLoading } = useAppSelector(state => state.IsLoadingSlice)
 
     const [tickets, setTickets] = useState<ITicket[]>([])
     const [voyages, setVoyages] = useState<IVoyage[]>([])
@@ -23,30 +25,34 @@ const Cart = () => {
 
     const location = useLocation()
 
-    useEffect(() => {
-        if (store.isAuth) {
-            const getTickets = async () => {
-                store.setLoading(true)
-                try {
-                    const res = await TicketService.getTickets(store.user.tickets)
-                    setTickets(res.data.resData)
-                    setVoyages(res.data.voyagesData)
-                    let tPrice: number = 0
-                    for(let i = 0; i < res.data.voyagesData.length; i++){
-                        tPrice += res.data.voyagesData[i].price
-                    }
-                    setPriceTotal(tPrice)
-                } catch (e) {
-                    console.log(e)
-                } finally {
-                    store.setLoading(false)
-                }
-            }
-            getTickets()
-        }
-    }, [store.isAuth, trigger, location])
+    const [getCart] = userAPI.useGetCartMutation()
+    const [deleteFromCart] = userAPI.useDeleteFromCartMutation()
 
-    if (!store.isAuth) {
+        useEffect(() => {
+            if (isAuth) {
+                const getTickets = async () => {
+                    try {
+                        const data = await getCart(user.tickets).unwrap()
+                        setTickets(data.resData)
+                        setVoyages(data.voyagesData)
+                        let tPrice: number = 0
+                        for(let i = 0; i < data.voyagesData.length; i++){
+                            tPrice += data.voyagesData[i].price
+                        }
+                        setPriceTotal(tPrice)
+                    } catch (e) {
+                        console.log(e)
+                    }
+                }
+                getTickets()
+            }
+        }, [isAuth, trigger, location, user.tickets])
+
+    if(isCartLoading) {
+        return <div></div>
+    }
+
+    if (!isAuth) {
         return <div className={s.UN}>Вы не авторизованы</div>
     }
 
@@ -64,20 +70,16 @@ const Cart = () => {
                         price,
                         timeStart,
                         timeEnd,
-                        timeTravel, 
+                        timeTravel,
                     }: IVoyage = voyages[index]
 
-                    const removeFromCartHandler = async () => {
-                        store.setLoading(true)
-                        const res = await CartService.deleteFromCart(store.user.email, _id)
-                        store.setLoading(false)
-                        if(res.data = 'Success'){
-                            console.log('Deleted')
-                            setTrigger(!trigger)
-                        }
+                    const deleteFromCartRequest: DeleteFromCartRequest = {
+                        ticket: _id,
+                        email: user.email
                     }
+
                     return (
-                         <div key={_id} className={s.item}>
+                        <div key={_id} className={s.item}>
                             <div className={s.col_1}>
                                 <p className={s.ship}>{text.boat}</p>
                                 <p className={s.shipName}>Москва-16</p>
@@ -97,9 +99,9 @@ const Cart = () => {
                                 </div>
                                 <p className={s._id}>ID: {_id}</p>
                             </div>
-                            <button 
+                            <button
                                 className={s.btn}
-                                onClick={() => removeFromCartHandler()}
+                                onClick={() => deleteFromCart(deleteFromCartRequest)}
                             >
                                 {text.remove}
                                 <br />
@@ -119,4 +121,4 @@ const Cart = () => {
         </div>
     )
 }
-export default observer(Cart)
+export default Cart

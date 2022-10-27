@@ -1,23 +1,27 @@
+import { Route, Routes } from "react-router";
+import { useEffect } from 'react'
+import { Account } from "./components/Account";
 import Header from "./components/Header";
-import { Routes, Route } from 'react-router-dom'
-import SearchTicket from "./components/SearchTicket";
-import Account from "./components/Account";
-import { useContext, useEffect } from "react";
-import { Context } from ".";
-import { observer } from 'mobx-react-lite'
 import { PageSpinner } from "./components/UI/Spinner";
+import { useAppSelector } from "./hooks/redux";
+import { userAPI } from "./services/UserService";
+import SearchTicket from "./components/SearchTicket";
 import Cart from "./components/Cart";
 
 function App() {
-  const { store } = useContext(Context)
+
+  const [checkAuth, {}] = userAPI.useRefreshMutation()
+
+  const { isLoading, isCheckAuthLoading, isCartLoading } = useAppSelector(state => state.IsLoadingSlice)
+
   useEffect(() => {
-      if(localStorage.getItem('token')){
-          store.checkAuth()
-      }
-  },[])
+    checkAuth()
+  }, [])
+
   return (
     <div>
-      {store.isLoading && <PageSpinner />}
+      <div className="background"></div>
+      {(isLoading || isCheckAuthLoading || isCartLoading) && <PageSpinner />}
       <div className="container">
         <Header />
         <Routes>
@@ -30,4 +34,4 @@ function App() {
   );
 }
 
-export default observer(App);
+export default App

@@ -1,4 +1,4 @@
-import { ILCart, ILHeader, ILSearchResults, ILSearchTicket } from "./ILanguage";
+import { ILAccount, ILCart, ILHeader, ILSearchResults, ILSearchTicket } from "./ILanguage";
 
 export const ruHeader: ILHeader = {
     language: 'ru',
@@ -18,6 +18,7 @@ export const ruSearchTicket: ILSearchTicket = {
     when: 'Когда?',
     quantity: 'Количество людей',
     search: 'Поиск билетов',
+    nwf: 'Ничего не найдено'
 }
 
 export const ruSearchResults: ILSearchResults = {
@@ -26,7 +27,9 @@ export const ruSearchResults: ILSearchResults = {
     hour: 'ч',
     min: 'м',
     passengers: 'Пассажиров',
-    add: 'Добавить'
+    add: 'Добавить',
+    authError: 'Авторизуйтесь, чтобы добавить билет!',
+    not_avaliable: 'Неактуальная дата'
 }
 export const ruCart: ILCart = {
     heading: 'Корзина',
@@ -37,4 +40,13 @@ export const ruCart: ILCart = {
     pay: 'Перейти к оплате',
     choose: 'Кол-во билетов: ',
     price: 'Цена'
+}
+export const ruAccount: ILAccount = {
+    logout: 'Выйти',
+    user: 'Пользователь',
+    login: 'Логин',
+    signup: 'Регистрация',
+    password: 'Пароль',
+    registr_form: 'Регистрация',
+    role: 'роль'
 }

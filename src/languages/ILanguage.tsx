@@ -16,6 +16,7 @@ export interface ILSearchTicket {
     when: string
     quantity: string
     search: string
+    nwf: string
 }
 
 export interface ILSearchResults {
@@ -25,6 +26,8 @@ export interface ILSearchResults {
     min: string
     passengers: string
     add: string
+    authError: string
+    not_avaliable: string
 }
 export interface ILCart {
     heading: string
@@ -35,4 +38,14 @@ export interface ILCart {
     choose: string
     price: string
     pay: string
+}
+
+export interface ILAccount {
+    logout: string
+    user: string
+    login: string
+    signup: string
+    password: string
+    registr_form: string
+    role: string
 }
