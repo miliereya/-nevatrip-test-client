@@ -1,6 +1,6 @@
 import { SignRequest } from '../../models/request/SignRequest'
 import { userAPI } from '../../services/UserService'
-import s from './Account.module.css'
+import s from './account.module.css'
 import { useEffect, useState } from 'react'
 import { useAppDispatch, useAppSelector } from '../../hooks/redux'
 import { userSlice } from '../../store/reducers/UserSlice'
